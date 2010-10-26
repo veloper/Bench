@@ -81,5 +81,5 @@ http://dan.doezema.com/2010/10/bench-php-class/
 
 ## License
 
-DDWinUCache is released under the New BSD license.
+Bench is released under the New BSD license.
 http://dan.doezema.com/licenses/new-bsd/
