@@ -233,21 +233,37 @@ class Bench {
     }
     
     /**
-     * Get the time (in seconds) elapsed from the start() to...
-     * If stop() has been called
-     *    to stop 
-     * else 
-     *    to the current microtime.
+     * Get the time elapsed (in seconds) based on context and/or parameters.
+     * 
+     * getElapsed()
+     *   if[stop() has been called] -- Time (in seconds() between start() and stop()
+     *   else -- Time (in seconds) between start() and the getElapsed() call.
+     * 
+     * getElapsed("from_mark_id", "to_mark_id") - Time (in seconds) between marks.
      *
+     * @param mixed;
+     * @param mixed;
      * @return mixed; float, false on error.
      */
-    public static function getElapsed() {
+    public static function getElapsed($from_mark_id = null, $to_mark_id = null) {
+        $microtime = microtime(true);
+        $elapsed = false;
         if(self::$start === null) {
             self::logError('Please call '.__CLASS__.'::start() before calling '.__CLASS__.'::getElapsed()');
             return false;
         }
-        $minuend = (self::$stop !== null) ? self::$stop : microtime(true);
-        return $minuend - self::$start;
+        if(!$from_mark_id && !$to_mark_id) {
+            $minuend = (self::$stop !== null) ? self::$stop : $microtime;
+            $elapsed = $minuend - self::$start;
+        } else {
+            if (($mark_from = self::getMarkById($from_mark_id)) && ($mark_to = self::getMarkById($to_mark_id))) {
+                $elapsed = abs($mark_to['microtime'] - $mark_from['microtime']);
+            } else {
+                if(!$mark_from) self::logError(__CLASS__.'::getElapsed(): A mark with the id of "'.$from_mark_id.'" does not exist.');
+                if(!$mark_to) self::logError(__CLASS__.'::getElapsed(): A mark with the id of "'.$to_mark_id.'" does not exist.');
+            }
+        }
+        return $elapsed;
     }
     
     /**
@@ -265,10 +281,10 @@ class Bench {
         if(count(self::getMarks())) {
             // Average Time (in seconds) Between Marks
             $stats['mark_average'] = self::getMarkAverage();
-            // The Longest Mark
-            $stats['mark_longest'] = self::getLongestMark();
             // The Shortest Mark
             $stats['mark_shortest'] = self::getShortestMark();
+            // The Longest Mark
+            $stats['mark_longest'] = self::getLongestMark();
         }
         // Start Microtime
         $stats['start'] = self::$start;
@@ -277,6 +293,17 @@ class Bench {
         // Elapsed Time (in seconds) -- Check comments of self::getElapsed() for more info.
         $stats['elapsed'] = $elapsed;
         return $stats;
+    }
+    
+    /**
+     * Dumps Stats, Marks, and Errors then (by default) kills the script.
+     *
+     * @param bool; if true die() -- else output.
+     * @return void;
+     */
+    public static function dump($die = true) {
+        var_dump(array('STATISTICS'=>self::getStats(), 'MARKS'=>self::getMarks(), 'ERRORS'=>self::getErrors()));
+        if($die) die();
     }
     
     /**
@@ -306,5 +333,5 @@ class Bench {
     protected static function logError($error) {
         self::$errors[] = $error;
         error_log(__CLASS__.': '.$error);
-    }
+    }    
 }
