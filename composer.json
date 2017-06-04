@@ -1,0 +1,19 @@
+{
+   "name": "veloper/bench",
+   "description": "A light-weight class for quickly benchmarking/timing/profiling PHP code",
+   "keywords": ["benchmarking", "profiling", "lightweight"],
+   "homepage": "https://github.com/veloper/Bench",
+   "license": "BSD-3-Clause",
+   "authors": [
+      {
+         "name": "Daniel Doezema",
+         "homepage": "http://dan.doezema.com/"
+      }
+   ],
+   "require": {
+      "php": ">=5.4.0"
+   },
+   "autoload": {
+      "classmap": ["class.Bench.php"]
+   }
+}
